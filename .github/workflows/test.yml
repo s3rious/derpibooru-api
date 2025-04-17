@@ -1,0 +1,52 @@
+name: Test
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  workflow_call:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container:
+      image: node:22.14.0-alpine
+      options: --user root
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Install git and build dependencies
+      run: |
+        apk add --no-cache git
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run linter
+      run: npm run lint
+
+    - name: Run unit tests with coverage
+      run: npm run test:unit:run
+
+    - name: Run integration tests
+      run: npm run test:integration:run
+
+    - name: Report coverage
+      uses: davelosert/vitest-coverage-report-action@v2
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        json-final-path: coverage/coverage-final.json
+        json-summary-path: coverage/coverage-summary.json
+        working-directory: ./
+        comment-on: pr
+
+    - name: Upload coverage artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-reports
+        path: coverage/
+        retention-days: 1 

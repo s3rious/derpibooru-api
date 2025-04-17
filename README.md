@@ -1,5 +1,11 @@
 # Derpibooru API Client
 
+![Branches](.github/badges/coverage-branches.svg)
+![Functions](.github/badges/coverage-functions.svg)
+![Lines](.github/badges/coverage-lines.svg)
+![Statements](.github/badges/coverage-statements.svg)
+![Coverage](.github/badges/coverage-total.svg)
+
 A modern TypeScript implementation of the Derpibooru API with Zod validation, designed to be Web-interoperable across all server runtimes.
 
 ## Features

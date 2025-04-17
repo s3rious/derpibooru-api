@@ -1,0 +1,50 @@
+name: Coverage Badge
+
+on:
+  workflow_run:
+    workflows: ["Test"]
+    types:
+      - completed
+    branches:
+      - master
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  coverage-badge:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download coverage artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-reports
+          path: coverage
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
+
+      - name: Generate coverage badges
+        uses: jpb06/coverage-badges-action@latest
+        with:
+          branches: master
+          coverage-summary-path: coverage/coverage-summary.json
+          badges-icon: vitest
+          output-folder: .github/badges
+          no-commit: true
+
+      - name: Commit and push badges
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add .github/badges/*.svg
+          git commit -m "chore: update coverage badges" || exit 0
+          git push origin master 
