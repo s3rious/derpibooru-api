@@ -1,0 +1,87 @@
+{
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "project": "./tsconfig.json",
+    "ecmaVersion": "latest",
+    "sourceType": "module"
+  },
+  "plugins": ["@typescript-eslint"],
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:@typescript-eslint/recommended-requiring-type-checking",
+    "plugin:@typescript-eslint/strict"
+  ],
+  "rules": {
+    // Enforce descriptive naming
+    "@typescript-eslint/naming-convention": [
+      "error",
+      {
+        "selector": "default",
+        "format": ["camelCase"],
+        "leadingUnderscore": "forbid",
+        "trailingUnderscore": "forbid"
+      },
+      {
+        "selector": "variable",
+        "format": ["camelCase", "UPPER_CASE"],
+        "leadingUnderscore": "forbid",
+        "trailingUnderscore": "forbid"
+      },
+      {
+        "selector": "typeLike",
+        "format": ["PascalCase"]
+      },
+      {
+        "selector": "interface",
+        "format": ["PascalCase"],
+        "prefix": ["I"]
+      }
+    ],
+
+    // Enforce function style preferences
+    "@typescript-eslint/explicit-function-return-type": "error",
+    "func-style": ["error", "declaration", { "allowArrowFunctions": true }],
+
+    // Enforce immutability
+    "prefer-const": "error",
+    "@typescript-eslint/prefer-readonly": "error",
+    "@typescript-eslint/no-unnecessary-condition": "error",
+
+    // Enforce error handling
+    "@typescript-eslint/no-explicit-any": "error",
+    "@typescript-eslint/prefer-nullish-coalescing": "error",
+    "@typescript-eslint/strict-boolean-expressions": "error",
+
+    // Enforce code structure
+    "no-else-return": "error",
+    "max-depth": ["error", 2],
+    "complexity": ["error", { "max": 10 }],
+
+    // Enforce exports style
+    "no-restricted-syntax": [
+      "error",
+      {
+        "selector": "ExportDefaultDeclaration",
+        "message": "Prefer named exports"
+      }
+    ],
+
+    // Type system
+    "@typescript-eslint/consistent-type-definitions": ["error", "type"],
+    "@typescript-eslint/no-unsafe-assignment": "error",
+    "@typescript-eslint/no-unsafe-member-access": "error",
+    "@typescript-eslint/no-unsafe-return": "error",
+
+    // Modern practices
+    "@typescript-eslint/prefer-optional-chain": "error",
+    "@typescript-eslint/no-non-null-assertion": "error",
+    "@typescript-eslint/explicit-member-accessibility": ["error", { "accessibility": "explicit" }],
+    "@typescript-eslint/member-ordering": "error",
+
+    // Documentation
+    "@typescript-eslint/explicit-module-boundary-types": "error",
+    "@typescript-eslint/no-inferrable-types": "error"
+  }
+} 
