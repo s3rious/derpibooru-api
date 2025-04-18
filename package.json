@@ -1,5 +1,5 @@
 {
-  "name": "@s3rious/derpibooru-api",
+  "name": "derpibooru-api",
   "version": "1.0.0",
   "description": "Modern TypeScript implementation of Derpibooru API with Zod validation",
   "main": "dist/index.js",
@@ -8,9 +8,6 @@
   "engines": {
     "node": ">=22.14.0",
     "bun": ">=1.2.10"
-  },
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
   },
   "repository": {
     "type": "git",
