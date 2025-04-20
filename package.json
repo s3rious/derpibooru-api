@@ -1,6 +1,6 @@
 {
   "name": "derpibooru-api",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Modern TypeScript implementation of Derpibooru API with Zod validation",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
