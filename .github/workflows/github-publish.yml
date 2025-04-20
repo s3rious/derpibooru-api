@@ -1,4 +1,4 @@
-name: Publish Package
+name: Publish to GitHub Packages
 
 on:
   release:
@@ -9,11 +9,7 @@ permissions:
   packages: write
 
 jobs:
-  test:
-    uses: ./.github/workflows/test.yml
-
   publish:
-    needs: test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -24,6 +20,7 @@ jobs:
           node-version: '22.14.0'
           registry-url: 'https://npm.pkg.github.com'
           scope: '@s3rious'
+          always-auth: true
 
       - name: Install dependencies
         run: npm ci
@@ -32,6 +29,8 @@ jobs:
         run: npm run build
 
       - name: Publish to GitHub Packages
-        run: npm publish
+        run: |
+          sed -i 's/"name": "derpibooru-api"/"name": "@s3rious\/derpibooru-api"/g' package.json
+          npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
