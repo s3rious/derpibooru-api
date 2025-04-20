@@ -1,48 +1,71 @@
 type Safe<T> = { success: true; data: T } | { success: false; error: string };
 
-function safe<T>(promise: Promise<T>, err?: string): Promise<Safe<T>>;
-function safe<T>(func: () => T, err?: string): Safe<T>;
-function safe<T>(
-  promiseOrFunc: Promise<T> | (() => T),
-  err?: string,
-): Promise<Safe<T>> | Safe<T> {
-  if (promiseOrFunc instanceof Promise) {
-    return safeAsync(promiseOrFunc, err);
-  }
-  return safeSync(promiseOrFunc, err);
+interface SafeOptions<E = unknown> {
+  errorMessage?: string;
+  processError?: (error: E) => string;
 }
 
-async function safeAsync<T>(
+function safe<T, E = unknown>(
   promise: Promise<T>,
-  err?: string,
+  options?: SafeOptions<E>,
+): Promise<Safe<T>>;
+function safe<T, E = unknown>(func: () => T, options?: SafeOptions<E>): Safe<T>;
+function safe<T, E = unknown>(
+  promiseOrFunc: Promise<T> | (() => T),
+  options?: SafeOptions<E>,
+): Promise<Safe<T>> | Safe<T> {
+  if (promiseOrFunc instanceof Promise) {
+    return safeAsync(promiseOrFunc, options ?? {});
+  }
+  return safeSync(promiseOrFunc, options ?? {});
+}
+
+async function safeAsync<T, E = unknown>(
+  promise: Promise<T>,
+  options: SafeOptions<E>,
 ): Promise<Safe<T>> {
   try {
     const data = await promise;
     return { data, success: true };
-  } catch (e) {
-    if (err !== undefined) {
-      return { success: false, error: err };
+  } catch (localError) {
+    if (options.errorMessage !== undefined) {
+      return { success: false, error: options.errorMessage };
     }
-    if (e instanceof Error) {
-      return { success: false, error: e.message };
+
+    if (localError instanceof Error) {
+      return { success: false, error: localError.message };
     }
+
+    if (options.processError !== undefined) {
+      return { success: false, error: options.processError(localError as E) };
+    }
+
     return { success: false, error: "Something went wrong" };
   }
 }
 
-function safeSync<T>(func: () => T, err?: string): Safe<T> {
+function safeSync<T, E = unknown>(
+  func: () => T,
+  options: SafeOptions<E>,
+): Safe<T> {
   try {
     const data = func();
     return { data, success: true };
-  } catch (e) {
-    if (err !== undefined) {
-      return { success: false, error: err };
+  } catch (localError) {
+    if (options.errorMessage !== undefined) {
+      return { success: false, error: options.errorMessage };
     }
-    if (e instanceof Error) {
-      return { success: false, error: e.message };
+
+    if (localError instanceof Error) {
+      return { success: false, error: localError.message };
     }
+
+    if (options.processError !== undefined) {
+      return { success: false, error: options.processError(localError as E) };
+    }
+
     return { success: false, error: "Something went wrong" };
   }
 }
 
-export { type Safe, safe };
+export { type Safe, type SafeOptions, safe };

@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z, ZodError } from "zod";
 
 import {
   safe,
@@ -99,7 +99,12 @@ class DerpibooruClient {
       return { success: false, error: jsonResult.error };
     }
 
-    const parseResult = safe(() => schema.parse(jsonResult.data));
+    const parseResult = safe<TResponse, ZodError>(
+      () => schema.parse(jsonResult.data),
+      {
+        processError: (error) => JSON.stringify(error.issues, null, 2),
+      },
+    );
 
     if (!parseResult.success) {
       return {

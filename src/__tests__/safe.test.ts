@@ -21,13 +21,23 @@ describe("safe", () => {
     });
 
     it("should handle promise rejection with custom error message", async () => {
-      const result = await safe(
-        Promise.reject(new Error("test error")),
-        "custom error",
-      );
+      const result = await safe(Promise.reject(new Error("test error")), {
+        errorMessage: "custom error",
+      });
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error).toBe("custom error");
+      }
+    });
+
+    it("should handle promise rejection with processError", async () => {
+      const result = await safe(Promise.reject({ code: 404 }), {
+        processError: (error) =>
+          `Custom processed error: ${JSON.stringify(error)}`,
+      });
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error).toBe('Custom processed error: {"code":404}');
       }
     });
 
@@ -36,6 +46,18 @@ describe("safe", () => {
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error).toBe("Something went wrong");
+      }
+    });
+
+    it("should prioritize errorMessage over processError", async () => {
+      const result = await safe(Promise.reject({ code: 404 }), {
+        errorMessage: "Priority message",
+        processError: (error) =>
+          `Should not be called: ${JSON.stringify(error)}`,
+      });
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error).toBe("Priority message");
       }
     });
   });
@@ -60,12 +82,31 @@ describe("safe", () => {
     });
 
     it("should handle function throwing with custom error message", () => {
-      const result = safe(() => {
-        throw new Error("test error");
-      }, "custom error");
+      const result = safe(
+        () => {
+          throw new Error("test error");
+        },
+        { errorMessage: "custom error" },
+      );
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error).toBe("custom error");
+      }
+    });
+
+    it("should handle function throwing with processError", () => {
+      const result = safe(
+        () => {
+          throw { code: 404 };
+        },
+        {
+          processError: (error) =>
+            `Custom processed error: ${JSON.stringify(error)}`,
+        },
+      );
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error).toBe('Custom processed error: {"code":404}');
       }
     });
 
@@ -76,6 +117,23 @@ describe("safe", () => {
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error).toBe("Something went wrong");
+      }
+    });
+
+    it("should prioritize errorMessage over processError in sync function", () => {
+      const result = safe(
+        () => {
+          throw { code: 404 };
+        },
+        {
+          errorMessage: "Priority message",
+          processError: (error) =>
+            `Should not be called: ${JSON.stringify(error)}`,
+        },
+      );
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error).toBe("Priority message");
       }
     });
   });
